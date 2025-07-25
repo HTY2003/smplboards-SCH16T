@@ -332,11 +332,13 @@ class SCH16T
         } reg_bitmask;
 
     public:
-        int         begin(SCH16T_filter sFilter, SCH16T_sensitivity sSensitivity, SCH16T_decimation sDecimation, bool enableDRY);
+        int         begin(SCH16T_filter sFilter, SCH16T_sensitivity sSensitivity, SCH16T_decimation sDecimation, bool enableDRY = false);
         void        getData(SCH16T_raw_data *data);
         void        getDataDecimated(SCH16T_raw_data *data);
+        void        getDataAux(SCH16T_raw_data *data);
         void        convertData(SCH16T_raw_data *data_in, SCH16T_result *data_out);
         void        convertDataDecimated(SCH16T_raw_data *data_in, SCH16T_result *data_out);
+        void        convertDataAux(SCH16T_raw_data *data_in, SCH16T_result *data_out);
 
         int         setFilters(uint32_t Freq_Rate12, uint32_t Freq_Acc12, uint32_t Freq_Acc3);
         int         setRateSensDec(uint16_t Sens_Rate1, uint16_t Sens_Rate2, uint16_t Dec_Rate2);
@@ -353,10 +355,11 @@ class SCH16T
         char        *getSnbr(void);
         
     protected:
-        SCH16T(SPIClass& spi, int cs_pin, int reset_pin = -1);
+        SCH16T(SPIClass& spi, int cs_pin, int reset_pin = -1, int ta9_8 = 0);
 
     private:
-        uint32_t            convertFilterToBitfield(uint32_t Freq);
+        uint32_t            convertRateFilterToBitfield(uint32_t Freq);
+        uint32_t            convertAccFilterToBitfield(uint32_t Freq);
         virtual uint32_t    convertRateSensToBitfield(uint32_t Sens);
         virtual uint32_t    convertBitfieldToRateSens(uint32_t bitfield);
         uint32_t            convertAccSensToBitfield(uint32_t Sens);
@@ -364,7 +367,8 @@ class SCH16T
         uint32_t            convertDecimationToBitfield(uint32_t Decimation);
         uint32_t            convertBitfieldToDecimation(uint32_t bitfield);
 
-        bool                isValidFilterFreq(uint32_t Freq);
+        bool                isValidRateFilterFreq(uint32_t Freq);
+        bool                isValidAccFilterFreq(uint32_t Freq);
         bool                isValidSampleRate(uint32_t Freq);
         virtual bool        isValidRateSens(uint32_t Sens);
         bool                isValidAccSens(uint32_t Sens);
@@ -378,20 +382,23 @@ class SCH16T
         uint8_t     CRC3(uint32_t SPIframe);
         bool        check48bitFrameError(uint64_t *data, int size);
         uint64_t    sendRequest(uint64_t Request);
+        uint64_t    addTargetAddress(uint64_t Request);
+        uint64_t    addTargetAddressNoCRC(uint64_t Request);
 
         SPIClass& _spi;
         int _cs, _reset;
-        int _sens_rate1, _sens_rate2, _sens_acc1, _sens_acc2;
+        uint8_t _ta9_8;
+        int _sens_rate1, _sens_rate2, _sens_acc1, _sens_acc2, _sens_acc3;
 };
 
 class SCH16T_K01 : public SCH16T {
     public:
-        SCH16T_K01(SPIClass& spi, int cs_pin, int reset_pin = -1);
+        SCH16T_K01(SPIClass& spi, int cs_pin, int reset_pin = -1, int ta9_8 = 0);
 };
 
 class SCH16T_K10 : public SCH16T {
     public:
-        SCH16T_K10(SPIClass& spi, int cs_pin, int reset_pin = -1);
+        SCH16T_K10(SPIClass& spi, int cs_pin, int reset_pin = -1, int ta9_8 = 0);
         bool        isValidRateSens(uint32_t Sens);
         uint32_t    convertRateSensToBitfield(uint32_t Sens);
         uint32_t    convertBitfieldToRateSens(uint32_t bitfield);

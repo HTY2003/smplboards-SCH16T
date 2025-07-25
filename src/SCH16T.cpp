@@ -69,21 +69,38 @@ void SCH16T::reset(void)
  */
 void SCH16T::sendSPIreset(void)
 {
-    sendRequest(request::REQ_SOFTRESET);
+    sendRequest(addTargetAddress(request::REQ_SOFTRESET));
 }
 
 
 /**
- * @brief Checks if the filter value given as parameter is valid.
+ * @brief Checks if the gyroscope filter value given as parameter is valid.
  *
- * @param Freq - Filter corner frequency [Hz]
+ * @param Freq - Gyroscope filter corner frequency [Hz]
  * 
  * @return true = valid
  *         false = invalid
  */
-bool SCH16T::isValidFilterFreq(uint32_t Freq)
+bool SCH16T::isValidRateFilterFreq(uint32_t Freq)
 {   
     if (Freq == 13 || Freq == 30 || Freq == 68 || Freq == 235 || Freq == 280 || Freq == 370 || Freq == 0) 
+        return true;
+    else    
+        return false;
+}
+
+
+/**
+ * @brief Checks if the accelerometer filter value given as parameter is valid.
+ *
+ * @param Freq - Accelerometer Filter corner frequency [Hz]
+ * 
+ * @return true = valid
+ *         false = invalid
+ */
+bool SCH16T::isValidAccFilterFreq(uint32_t Freq)
+{   
+    if (Freq == 13 || Freq == 30 || Freq == 68 || Freq == 210 || Freq == 240 || Freq == 290 || Freq == 0) 
         return true;
     else    
         return false;
@@ -181,19 +198,19 @@ int SCH16T::setFilters(uint32_t Freq_Rate12, uint32_t Freq_Acc12, uint32_t Freq_
     uint64_t responseFrame_Acc3;
     uint8_t  CRCvalue;
 
-    if (isValidFilterFreq(Freq_Rate12) == false) {
+    if (isValidRateFilterFreq(Freq_Rate12) == false) {
         return SCH16T_ERR_INVALID_PARAM;
     }
-    if (isValidFilterFreq(Freq_Acc12) == false) {
+    if (isValidAccFilterFreq(Freq_Acc12) == false) {
         return SCH16T_ERR_INVALID_PARAM;
     }
-    if (isValidFilterFreq(Freq_Acc3) == false) {
+    if (isValidAccFilterFreq(Freq_Acc3) == false) {
         return SCH16T_ERR_INVALID_PARAM;
     }
     
     // Set filters for Rate_XYZ1 (interpolated) and Rate_XYZ2 (decimated) outputs.
-    requestFrame_Rate12 = request::REQ_SET_FILT_RATE;
-    dataField = convertFilterToBitfield(Freq_Rate12);
+    requestFrame_Rate12 = addTargetAddressNoCRC(request::REQ_SET_FILT_RATE);
+    dataField = convertRateFilterToBitfield(Freq_Rate12);
     requestFrame_Rate12 |= dataField;
     requestFrame_Rate12 <<= 8;
     CRCvalue = CRC8(requestFrame_Rate12);
@@ -201,8 +218,8 @@ int SCH16T::setFilters(uint32_t Freq_Rate12, uint32_t Freq_Acc12, uint32_t Freq_
     sendRequest(requestFrame_Rate12);
 
     // Set filters for Acc_XYZ1 (interpolated) and Acc_XYZ2 (decimated) outputs.
-    requestFrame_Acc12 = request::REQ_SET_FILT_ACC12;
-    dataField = convertFilterToBitfield(Freq_Acc12);
+    requestFrame_Acc12 = addTargetAddressNoCRC(request::REQ_SET_FILT_ACC12);
+    dataField = convertAccFilterToBitfield(Freq_Acc12);
     requestFrame_Acc12 |= dataField;
     requestFrame_Acc12 <<= 8;
     CRCvalue = CRC8(requestFrame_Acc12);
@@ -210,8 +227,8 @@ int SCH16T::setFilters(uint32_t Freq_Rate12, uint32_t Freq_Acc12, uint32_t Freq_
     sendRequest(requestFrame_Acc12);
 
     // Set filters for Acc_XYZ3 (interpolated) output.
-    requestFrame_Acc3 = request::REQ_SET_FILT_ACC3;
-    dataField = convertFilterToBitfield(Freq_Acc3);
+    requestFrame_Acc3 = addTargetAddressNoCRC(request::REQ_SET_FILT_ACC3);
+    dataField = convertAccFilterToBitfield(Freq_Acc3);
     requestFrame_Acc3 |= dataField;
     requestFrame_Acc3 <<= 8;
     CRCvalue = CRC8(requestFrame_Acc3);
@@ -219,10 +236,10 @@ int SCH16T::setFilters(uint32_t Freq_Rate12, uint32_t Freq_Acc12, uint32_t Freq_
     sendRequest(requestFrame_Acc3);
     
     // Read back filter register contents.
-    sendRequest(request::REQ_READ_FILT_RATE);        
-    responseFrame_Rate12 = sendRequest(request::REQ_READ_FILT_ACC12);
-    responseFrame_Acc12 = sendRequest(request::REQ_READ_FILT_ACC3);
-    responseFrame_Acc3 = sendRequest(request::REQ_READ_FILT_ACC3);
+    sendRequest(addTargetAddress(request::REQ_READ_FILT_RATE));
+    responseFrame_Rate12 = sendRequest(addTargetAddress(request::REQ_READ_FILT_ACC12));
+    responseFrame_Acc12 = sendRequest(addTargetAddress(request::REQ_READ_FILT_ACC3));
+    responseFrame_Acc3 = sendRequest(addTargetAddress(request::REQ_READ_FILT_ACC3));
     
     // Check that return frame is not blank.
     if ((responseFrame_Rate12 == 0xFFFFFFFFFFFF) || (responseFrame_Rate12 == 0x00))
@@ -290,7 +307,7 @@ int SCH16T::setRateSensDec(uint16_t Sens_Rate1, uint16_t Sens_Rate2, uint16_t De
 
     // Set sensitivities for Rate_XYZ1 (interpolated) and Rate_XYZ2 (decimated) outputs.
     // Also set decimation for Rate_XYZ2.
-    requestFrame_Rate_Ctrl = request::REQ_SET_RATE_CTRL;
+    requestFrame_Rate_Ctrl = addTargetAddressNoCRC(request::REQ_SET_RATE_CTRL);
     dataField = convertRateSensToBitfield(Sens_Rate1);
     dataField <<= 3;
     bitField = convertRateSensToBitfield(Sens_Rate2);
@@ -310,8 +327,8 @@ int SCH16T::setRateSensDec(uint16_t Sens_Rate1, uint16_t Sens_Rate2, uint16_t De
     sendRequest(requestFrame_Rate_Ctrl);
 
     // Read back rate control register contents.
-    sendRequest(request::REQ_READ_RATE_CTRL);
-    responseFrame_Rate_Ctrl = sendRequest(request::REQ_READ_RATE_CTRL);
+    sendRequest(addTargetAddress(request::REQ_READ_RATE_CTRL));
+    responseFrame_Rate_Ctrl = sendRequest(addTargetAddress(request::REQ_READ_RATE_CTRL));
 
     // Check that return frame is not blank.
     if ((responseFrame_Rate_Ctrl == 0xFFFFFFFFFFFF) || (responseFrame_Rate_Ctrl == 0x00))
@@ -347,15 +364,15 @@ int SCH16T::getRateSensDec(uint16_t *Sens_Rate1, uint16_t *Sens_Rate2, uint16_t 
     uint64_t responseFrame_Rate_Ctrl;
 
     // Read Rate control register contents.
-    sendRequest(request::REQ_READ_RATE_CTRL);
-    responseFrame_Rate_Ctrl = sendRequest(request::REQ_READ_RATE_CTRL);
+    sendRequest(addTargetAddress(request::REQ_READ_RATE_CTRL));
+    responseFrame_Rate_Ctrl = sendRequest(addTargetAddress(request::REQ_READ_RATE_CTRL));
 
     // Check that return frame is not blank.
     if ((responseFrame_Rate_Ctrl == 0xFFFFFFFFFFFF) || (responseFrame_Rate_Ctrl == 0x00))
         return SCH16T_ERR_OTHER;
 
     // Check that Source Address matches Target Address.
-    if (((request::REQ_READ_RATE_CTRL & frame_mask::TA_FIELD_MASK) >> 38) != ((responseFrame_Rate_Ctrl & frame_mask::SA_FIELD_MASK) >> 37))
+    if (((addTargetAddress(request::REQ_READ_RATE_CTRL) & frame_mask::TA_FIELD_MASK) >> 38) != ((responseFrame_Rate_Ctrl & frame_mask::SA_FIELD_MASK) >> 37))
         return SCH16T_ERR_OTHER;
 
     
@@ -419,10 +436,11 @@ int SCH16T::setAccSensDec(uint16_t Sens_Acc1, uint16_t Sens_Acc2, uint16_t Sens_
 
     _sens_acc1 = Sens_Acc1;
     _sens_acc2 = Sens_Acc2;
+    _sens_acc3 = Sens_Acc3;
 
     // Set sensitivities for Acc_XYZ1 (interpolated) and Acc_XYZ2 (decimated) outputs.
     // Also set decimation for Acc_XYZ2.
-    requestFrame_Acc12_Ctrl = request::REQ_SET_ACC12_CTRL;
+    requestFrame_Acc12_Ctrl = addTargetAddressNoCRC(request::REQ_SET_ACC12_CTRL);
     dataField = convertAccSensToBitfield(Sens_Acc1);
     dataField <<= 3;
     bitField = convertAccSensToBitfield(Sens_Acc2);
@@ -442,7 +460,7 @@ int SCH16T::setAccSensDec(uint16_t Sens_Acc1, uint16_t Sens_Acc2, uint16_t Sens_
     sendRequest(requestFrame_Acc12_Ctrl);
 
     // Set sensitivity for Acc_XYZ3 (interpolated) output.
-    requestFrame_Acc3_Ctrl = request::REQ_SET_ACC3_CTRL;
+    requestFrame_Acc3_Ctrl = addTargetAddressNoCRC(request::REQ_SET_ACC3_CTRL);
     dataField = convertAccSensToBitfield(Sens_Acc3);
     requestFrame_Acc3_Ctrl |= dataField;
     requestFrame_Acc3_Ctrl <<= 8;
@@ -451,9 +469,9 @@ int SCH16T::setAccSensDec(uint16_t Sens_Acc1, uint16_t Sens_Acc2, uint16_t Sens_
     sendRequest(requestFrame_Acc3_Ctrl);
 
     // Read back sensitivity control register contents.
-    sendRequest(request::REQ_READ_ACC12_CTRL);
-    responseFrame_Acc12_Ctrl = sendRequest(request::REQ_READ_ACC3_CTRL);
-    responseFrame_Acc3_Ctrl = sendRequest(request::REQ_READ_ACC3_CTRL);
+    sendRequest(addTargetAddress(request::REQ_READ_ACC12_CTRL));
+    responseFrame_Acc12_Ctrl = sendRequest(addTargetAddress(request::REQ_READ_ACC3_CTRL));
+    responseFrame_Acc3_Ctrl = sendRequest(addTargetAddress(request::REQ_READ_ACC3_CTRL));
 
     // Check that return frame is not blank.
     if ((responseFrame_Acc12_Ctrl == 0xFFFFFFFFFFFF) || (responseFrame_Acc12_Ctrl == 0x00))
@@ -497,9 +515,9 @@ int SCH16T::getAccSensDec(uint16_t *Sens_Acc1, uint16_t *Sens_Acc2, uint16_t *Se
     uint64_t responseFrame_Acc3_Ctrl;
 
     // Read Acc12 and Acc3 control register contents.
-    sendRequest(request::REQ_READ_ACC12_CTRL);
-    responseFrame_Acc12_Ctrl = sendRequest(request::REQ_READ_ACC3_CTRL);
-    responseFrame_Acc3_Ctrl = sendRequest(request::REQ_READ_ACC3_CTRL);
+    sendRequest(addTargetAddress(request::REQ_READ_ACC12_CTRL));
+    responseFrame_Acc12_Ctrl = sendRequest(addTargetAddress(request::REQ_READ_ACC3_CTRL));
+    responseFrame_Acc3_Ctrl = sendRequest(addTargetAddress(request::REQ_READ_ACC3_CTRL));
 
 
     // Check that return frame is not blank.
@@ -509,9 +527,9 @@ int SCH16T::getAccSensDec(uint16_t *Sens_Acc1, uint16_t *Sens_Acc2, uint16_t *Se
         return SCH16T_ERR_OTHER;
 
     // Check that Source Address matches Target Address.
-    if (((request::REQ_READ_ACC12_CTRL & frame_mask::TA_FIELD_MASK) >> 38) != ((responseFrame_Acc12_Ctrl & frame_mask::SA_FIELD_MASK) >> 37))
+    if (((addTargetAddress(request::REQ_READ_ACC12_CTRL) & frame_mask::TA_FIELD_MASK) >> 38) != ((responseFrame_Acc12_Ctrl & frame_mask::SA_FIELD_MASK) >> 37))
         return SCH16T_ERR_OTHER;
-    if (((request::REQ_READ_ACC3_CTRL & frame_mask::TA_FIELD_MASK) >> 38) != ((responseFrame_Acc3_Ctrl & frame_mask::SA_FIELD_MASK) >> 37))
+    if (((addTargetAddress(request::REQ_READ_ACC3_CTRL) & frame_mask::TA_FIELD_MASK) >> 38) != ((responseFrame_Acc3_Ctrl & frame_mask::SA_FIELD_MASK) >> 37))
         return SCH16T_ERR_OTHER;
 
     
@@ -553,7 +571,7 @@ int SCH16T::enableMeas(bool enableSensor, bool setEOI)
     uint64_t responseFrame_Mode_Ctrl;
     uint8_t  CRCvalue;
 
-    requestFrame_Mode_Ctrl = request::REQ_SET_MODE_CTRL;
+    requestFrame_Mode_Ctrl = addTargetAddressNoCRC(request::REQ_SET_MODE_CTRL);
 
     // Handle EN_SENSOR -bit
     if (enableSensor)
@@ -569,8 +587,8 @@ int SCH16T::enableMeas(bool enableSensor, bool setEOI)
     sendRequest(requestFrame_Mode_Ctrl);
 
     // Read back sensitivity control register contents.
-    sendRequest(request::REQ_READ_MODE_CTRL);
-    responseFrame_Mode_Ctrl = sendRequest(request::REQ_READ_MODE_CTRL);
+    sendRequest(addTargetAddress(request::REQ_READ_MODE_CTRL));
+    responseFrame_Mode_Ctrl = sendRequest(addTargetAddress(request::REQ_READ_MODE_CTRL));
 
     // Check that return frame is not blank.
     if ((responseFrame_Mode_Ctrl == 0xFFFFFFFFFFFF) || (responseFrame_Mode_Ctrl == 0x00))
@@ -604,8 +622,8 @@ int SCH16T::setDRY(int8_t polarity, bool enable)
         return SCH16T_ERR_INVALID_PARAM;
     
     // Read USER_IF_CTRL -register content
-    sendRequest(request::REQ_READ_USER_IF_CTRL);
-    responseFrame_User_If_Ctrl = sendRequest(request::REQ_READ_USER_IF_CTRL);
+    sendRequest(addTargetAddress(request::REQ_READ_USER_IF_CTRL));
+    responseFrame_User_If_Ctrl = sendRequest(addTargetAddress(request::REQ_READ_USER_IF_CTRL));
     dataContent = (responseFrame_User_If_Ctrl & frame_mask::DATA_FIELD_MASK) >> 8;
     
     if (polarity == 0)
@@ -618,7 +636,7 @@ int SCH16T::setDRY(int8_t polarity, bool enable)
     else
         dataContent &= (uint16_t)~0x20;   // Set DRY disabled
         
-    requestFrame_User_If_Ctrl = request::REQ_SET_USER_IF_CTRL;
+    requestFrame_User_If_Ctrl = addTargetAddressNoCRC(request::REQ_SET_USER_IF_CTRL);
     requestFrame_User_If_Ctrl |= dataContent;
     requestFrame_User_If_Ctrl <<= 8;
     CRCvalue = CRC8(requestFrame_User_If_Ctrl);
@@ -626,8 +644,8 @@ int SCH16T::setDRY(int8_t polarity, bool enable)
     sendRequest(requestFrame_User_If_Ctrl);
 
     // Read back sensitivity control register contents.
-    sendRequest(request::REQ_READ_USER_IF_CTRL);
-    responseFrame_User_If_Ctrl = sendRequest(request::REQ_READ_USER_IF_CTRL);
+    sendRequest(addTargetAddress(request::REQ_READ_USER_IF_CTRL));
+    responseFrame_User_If_Ctrl = sendRequest(addTargetAddress(request::REQ_READ_USER_IF_CTRL));
 
     // Check that return frame is not blank.
     if ((responseFrame_User_If_Ctrl == 0xFFFFFFFFFFFF) || (responseFrame_User_If_Ctrl == 0x00))
@@ -646,7 +664,7 @@ int SCH16T::setDRY(int8_t polarity, bool enable)
 
 
 /**
- * @brief Returns bitfield for setting output channel filters to desired frequency value.
+ * @brief Returns bitfield for setting gyroscope output channel filters to desired frequency value.
  * 
  * @note Valid filter frequency values for all channels are: 0, 13, 30, 68, 235, 280, 370 [Hz]
  * @note Here all XYZ-axis filters are set to same value.
@@ -655,7 +673,7 @@ int SCH16T::setDRY(int8_t polarity, bool enable)
  * 
  * @return Equivalent bit field for building the filter setting SPI-frame.                   
  */
-uint32_t SCH16T::convertFilterToBitfield(uint32_t Freq)
+uint32_t SCH16T::convertRateFilterToBitfield(uint32_t Freq)
 {
     switch (Freq)
     {
@@ -670,6 +688,40 @@ uint32_t SCH16T::convertFilterToBitfield(uint32_t Freq)
         case 280:
             return 0x0DB;   // 011 011 011
         case 370:
+            return 0x124;   // 100 100 100
+        case 0:
+            return 0x1FF;   // 111 111 111, filter bypass mode
+        default:
+            return 0x000;       
+    }
+}
+
+
+/**
+ * @brief Returns bitfield for setting accelerometer output channel filters to desired frequency value.
+ * 
+ * @note Valid filter frequency values for all channels are: 0, 13, 30, 68, 210, 240, 290 [Hz]
+ * @note Here all XYZ-axis filters are set to same value.
+ *
+ * @param Freq - Filter for an output channel (Rate_XYZ1, Freq_Acc12, Freq_Acc3).
+ * 
+ * @return Equivalent bit field for building the filter setting SPI-frame.                   
+ */
+uint32_t SCH16T::convertAccFilterToBitfield(uint32_t Freq)
+{
+    switch (Freq)
+    {
+        case 13:
+            return 0x092;   // 010 010 010
+        case 30:
+            return 0x049;   // 001 001 001
+        case 68:
+            return 0x000;   // 000 000 000        
+        case 210:
+            return 0x16D;   // 101 101 101
+        case 240:
+            return 0x0DB;   // 011 011 011
+        case 290:
             return 0x124;   // 100 100 100
         case 0:
             return 0x1FF;   // 111 111 111, filter bypass mode
@@ -848,17 +900,17 @@ int SCH16T::getStatus(SCH16T_status *Status)
         return SCH16T_ERR_NULL_POINTER;
     }
     
-    sendRequest(request::REQ_READ_STAT_SUM);
-    Status->Summary     = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_SUM_SAT));
-    Status->Summary_Sat = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_COM));
-    Status->Common      = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_RATE_COM));
-    Status->Rate_Common = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_RATE_X));
-    Status->Rate_X      = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_RATE_Y));
-    Status->Rate_Y      = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_RATE_Z));
-    Status->Rate_Z      = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_ACC_X));    
-    Status->Acc_X       = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_ACC_Y));
-    Status->Acc_Y       = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_ACC_Z));
-    Status->Acc_Z       = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_STAT_ACC_Z));
+    sendRequest(addTargetAddress(request::REQ_READ_STAT_SUM));
+    Status->Summary     = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_SUM_SAT)));
+    Status->Summary_Sat = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_COM)));
+    Status->Common      = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_RATE_COM)));
+    Status->Rate_Common = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_RATE_X)));
+    Status->Rate_X      = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_RATE_Y)));
+    Status->Rate_Y      = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_RATE_Z)));
+    Status->Rate_Z      = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_ACC_X)));
+    Status->Acc_X       = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_ACC_Y)));
+    Status->Acc_Y       = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_ACC_Z)));
+    Status->Acc_Z       = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_STAT_ACC_Z)));
 
     return SCH16T_OK;
 }
@@ -917,15 +969,44 @@ char* SCH16T::getSnbr(void)
     uint16_t sn_id3;
     static char strBuffer[15];
 
-    sendRequest(request::REQ_READ_SN_ID1);
-    sn_id1 = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_SN_ID2));
-    sn_id2 = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_SN_ID3));
-    sn_id3 = SPI48_DATA_UINT16(sendRequest(request::REQ_READ_SN_ID3));
+    sendRequest(addTargetAddress(request::REQ_READ_SN_ID1));
+    sn_id1 = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_SN_ID2)));
+    sn_id2 = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_SN_ID3)));
+    sn_id3 = SPI48_DATA_UINT16(sendRequest(addTargetAddress(request::REQ_READ_SN_ID3)));
 
     // Build serial number string 
     snprintf(strBuffer, 14, "%05d%01X%04X", sn_id2, sn_id1 & 0x000F, sn_id3);
 
     return strBuffer;
+}
+
+
+/**
+ * @brief Add sensor target address bits 9 and 8 to request word
+ *
+ * @param  Request - 48-bit MOSI data
+ * 
+ * @return 48-bit MOSI data with correct target address                     
+ */
+uint64_t SCH16T::addTargetAddress(uint64_t Request)
+{
+    uint64_t out = (Request | (uint64_t) _ta9_8 << 46) & 0xFFFFFFFFFF00;
+    uint8_t CRCvalue = CRC8(out);
+    out |= CRCvalue;
+    return out;
+}
+
+/**
+ * @brief Add sensor target address bits 9 and 8 to request word (that does not have CRC bits appended yet)
+ *
+ * @param  Request - 40-bit MOSI data
+ * 
+ * @return 40-bit MOSI data with correct target address                     
+ */
+uint64_t SCH16T::addTargetAddressNoCRC(uint64_t Request)
+{
+    uint64_t out = (Request | (uint64_t) _ta9_8 << 38) & 0xFFFFFFFFFF;
+    return out;
 }
 
 
@@ -1133,14 +1214,14 @@ int SCH16T::begin(SCH16T_filter sFilter, SCH16T_sensitivity sSensitivity, SCH16T
  */
 void SCH16T::getData(SCH16T_raw_data *data)
 {
-    sendRequest(request::REQ_READ_RATE_X1);
-    uint64_t rate_x_raw = sendRequest(request::REQ_READ_RATE_Y1);
-    uint64_t rate_y_raw = sendRequest(request::REQ_READ_RATE_Z1);
-    uint64_t rate_z_raw = sendRequest(request::REQ_READ_ACC_X1);
-    uint64_t acc_x_raw  = sendRequest(request::REQ_READ_ACC_Y1);
-    uint64_t acc_y_raw  = sendRequest(request::REQ_READ_ACC_Z1);
-    uint64_t acc_z_raw  = sendRequest(request::REQ_READ_TEMP);
-    uint64_t temp_raw   = sendRequest(request::REQ_READ_TEMP);
+    sendRequest(addTargetAddress(request::REQ_READ_RATE_X1));
+    uint64_t rate_x_raw = sendRequest(addTargetAddress(request::REQ_READ_RATE_Y1));
+    uint64_t rate_y_raw = sendRequest(addTargetAddress(request::REQ_READ_RATE_Z1));
+    uint64_t rate_z_raw = sendRequest(addTargetAddress(request::REQ_READ_ACC_X1));
+    uint64_t acc_x_raw  = sendRequest(addTargetAddress(request::REQ_READ_ACC_Y1));
+    uint64_t acc_y_raw  = sendRequest(addTargetAddress(request::REQ_READ_ACC_Z1));
+    uint64_t acc_z_raw  = sendRequest(addTargetAddress(request::REQ_READ_TEMP));
+    uint64_t temp_raw   = sendRequest(addTargetAddress(request::REQ_READ_TEMP));
 
     // Get possible frame errors
     uint64_t miso_words[] = {rate_x_raw, rate_y_raw, rate_z_raw, acc_x_raw, acc_y_raw, acc_z_raw, temp_raw};       
@@ -1167,14 +1248,14 @@ void SCH16T::getData(SCH16T_raw_data *data)
  */
 void SCH16T::getDataDecimated(SCH16T_raw_data *data)
 {
-    sendRequest(request::REQ_READ_RATE_X2);
-    uint64_t rate_x_raw = sendRequest(request::REQ_READ_RATE_Y2);
-    uint64_t rate_y_raw = sendRequest(request::REQ_READ_RATE_Z2);
-    uint64_t rate_z_raw = sendRequest(request::REQ_READ_ACC_X2);
-    uint64_t acc_x_raw  = sendRequest(request::REQ_READ_ACC_Y2);
-    uint64_t acc_y_raw  = sendRequest(request::REQ_READ_ACC_Z2);
-    uint64_t acc_z_raw  = sendRequest(request::REQ_READ_TEMP);
-    uint64_t temp_raw   = sendRequest(request::REQ_READ_TEMP);
+    sendRequest(addTargetAddress(request::REQ_READ_RATE_X2));
+    uint64_t rate_x_raw = sendRequest(addTargetAddress(request::REQ_READ_RATE_Y2));
+    uint64_t rate_y_raw = sendRequest(addTargetAddress(request::REQ_READ_RATE_Z2));
+    uint64_t rate_z_raw = sendRequest(addTargetAddress(request::REQ_READ_ACC_X2));
+    uint64_t acc_x_raw  = sendRequest(addTargetAddress(request::REQ_READ_ACC_Y2));
+    uint64_t acc_y_raw  = sendRequest(addTargetAddress(request::REQ_READ_ACC_Z2));
+    uint64_t acc_z_raw  = sendRequest(addTargetAddress(request::REQ_READ_TEMP));
+    uint64_t temp_raw   = sendRequest(addTargetAddress(request::REQ_READ_TEMP));
 
     // Get possible frame errors
     uint64_t miso_words[] = {rate_x_raw, rate_y_raw, rate_z_raw, acc_x_raw, acc_y_raw, acc_z_raw, temp_raw};       
@@ -1187,6 +1268,34 @@ void SCH16T::getDataDecimated(SCH16T_raw_data *data)
     data->Acc2_raw[SCH16T_axis::AXIS_X]  = SPI48_DATA_INT32(acc_x_raw);
     data->Acc2_raw[SCH16T_axis::AXIS_Y]  = SPI48_DATA_INT32(acc_y_raw);
     data->Acc2_raw[SCH16T_axis::AXIS_Z]  = SPI48_DATA_INT32(acc_z_raw);
+
+    // Temperature data is always 16 bits wide. Drop 4 LSBs as they are not used.
+    data->Temp_raw = SPI48_DATA_INT32(temp_raw) >> 4;
+}
+
+/**
+ * @brief Read rate, acceleration and temperature data from sensor. Called by sampling_callback()
+ *
+ * @param data - pointer to "raw" data from sensor
+ * 
+ * @return None                       
+ */
+void SCH16T::getDataAux(SCH16T_raw_data *data)
+{
+    sendRequest(addTargetAddress(request::REQ_READ_ACC_X3));
+    uint64_t acc_x_raw  = sendRequest(addTargetAddress(request::REQ_READ_ACC_Y3));
+    uint64_t acc_y_raw  = sendRequest(addTargetAddress(request::REQ_READ_ACC_Z3));
+    uint64_t acc_z_raw  = sendRequest(addTargetAddress(request::REQ_READ_TEMP));
+    uint64_t temp_raw   = sendRequest(addTargetAddress(request::REQ_READ_TEMP));
+
+    // Get possible frame errors
+    uint64_t miso_words[] = {acc_x_raw, acc_y_raw, acc_z_raw, temp_raw};       
+    data->frame_error = check48bitFrameError(miso_words, (sizeof(miso_words) / sizeof(uint64_t)));
+    
+    // Parse MISO data to structure
+    data->Acc3_raw[SCH16T_axis::AXIS_X]  = SPI48_DATA_INT32(acc_x_raw);
+    data->Acc3_raw[SCH16T_axis::AXIS_Y]  = SPI48_DATA_INT32(acc_y_raw);
+    data->Acc3_raw[SCH16T_axis::AXIS_Z]  = SPI48_DATA_INT32(acc_z_raw);
 
     // Temperature data is always 16 bits wide. Drop 4 LSBs as they are not used.
     data->Temp_raw = SPI48_DATA_INT32(temp_raw) >> 4;
@@ -1240,6 +1349,26 @@ void SCH16T::convertDataDecimated(SCH16T_raw_data *data_in, SCH16T_result *data_
 
 
 /**
+ * @brief Convert summed raw data from sensor to real values. Also calculate averages values.
+ *
+ * @param data_in - pointer to summed raw data from sensor
+ *        data_out - pointer to converted values
+ * 
+ * @return None                       
+ */
+void SCH16T::convertDataAux(SCH16T_raw_data *data_in, SCH16T_result *data_out)
+{
+    // Convert from raw counts to sensitivity and calculate averages here for faster execution
+    data_out->Acc3[SCH16T_axis::AXIS_X]  = (float)data_in->Acc3_raw[SCH16T_axis::AXIS_X] / (float) _sens_acc3;
+    data_out->Acc3[SCH16T_axis::AXIS_Y]  = (float)data_in->Acc3_raw[SCH16T_axis::AXIS_Y] / (float) _sens_acc3;
+    data_out->Acc3[SCH16T_axis::AXIS_Z]  = (float)data_in->Acc3_raw[SCH16T_axis::AXIS_Z] / (float) _sens_acc3;
+
+    // Convert temperature and calculate average
+    data_out->Temp = (float)data_in->Temp_raw / 100;
+}
+
+
+/**
  * @brief Check if 48-bit MISO frames have any error bits set. Return true on the first error encountered.
  *
  * @param data - pointer to 48-bit MISO frames from sensor
@@ -1267,8 +1396,9 @@ bool SCH16T::check48bitFrameError(uint64_t *data, int size)
  * @param spi - SPI object used for communications
  *        cs_pin - GPIO pin number for CS pin
  *        reset_pin - GPIO pin number for EXTRESN (optional)
+ *        ta9_8 - Bits 9 and 8 of device target address (defaults to 0, can modify with TA9 and TA8 solder jumper pads)
  */
-SCH16T::SCH16T(SPIClass& spi, int cs_pin, int reset_pin) : _spi(spi), _cs(cs_pin), _reset(reset_pin) {  };
+SCH16T::SCH16T(SPIClass& spi, int cs_pin, int reset_pin, int ta9_8) : _spi(spi), _cs(cs_pin), _reset(reset_pin), _ta9_8(ta9_8) {  };
 
 
 /**
@@ -1277,8 +1407,9 @@ SCH16T::SCH16T(SPIClass& spi, int cs_pin, int reset_pin) : _spi(spi), _cs(cs_pin
  * @param spi - SPI object used for communications
  *        cs_pin - GPIO pin number for CS pin
  *        reset_pin - GPIO pin number for EXTRESN (optional)
+ *        ta9_8 - Bits 9 and 8 of device target address (defaults to 0, can modify with TA9 and TA8 solder jumper pads)
  */
-SCH16T_K01::SCH16T_K01(SPIClass& spi, int cs_pin, int reset_pin) : SCH16T(spi, cs_pin, reset_pin) {  };
+SCH16T_K01::SCH16T_K01(SPIClass& spi, int cs_pin, int reset_pin, int ta9_8) : SCH16T(spi, cs_pin, reset_pin, ta9_8) {  };
 
 
 /**
@@ -1287,8 +1418,9 @@ SCH16T_K01::SCH16T_K01(SPIClass& spi, int cs_pin, int reset_pin) : SCH16T(spi, c
  * @param spi - SPI object used for communications
  *        cs_pin - GPIO pin number for CS pin
  *        reset_pin - GPIO pin number for EXTRESN (optional)
+ *        ta9_8 - Bits 9 and 8 of device target address (defaults to 0, can modify with TA9 and TA8 solder jumper pads)
  */
-SCH16T_K10::SCH16T_K10(SPIClass& spi, int cs_pin, int reset_pin) : SCH16T(spi, cs_pin, reset_pin) {  };
+SCH16T_K10::SCH16T_K10(SPIClass& spi, int cs_pin, int reset_pin, int ta9_8) : SCH16T(spi, cs_pin, reset_pin, ta9_8) {  };
 
 
 /**
@@ -1303,7 +1435,7 @@ bool SCH16T_K10::isValidRateSens(uint32_t Sens)
 {   
     if (Sens == 100 || Sens == 200 || Sens == 400) 
         return true;
-    else    
+    else
         return false;
 }
 
