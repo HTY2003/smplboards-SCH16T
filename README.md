@@ -23,8 +23,7 @@ In the future, I will add this library to the Arduino Library Manager for easier
 | EXTRESN | Reset pin, pulled HIGH with a 10K resistor to enable the sensor by default. Connect to button/microcontroller pin if needed. |
 | 3V3 (+) | Power pin. Connect to 3V3 power source |
 | GND (-) | Ground pin. Connect to GND pin of microcontroller |
-| DRY_SYNC | Data Ready output/Sync input Pin of sensor. Can be used with interrupt-capable digital pin on microcontroller to read
-data once it is ready, resulting in minimized timing jitter. |
+| DRY_SYNC | Data Ready output/Sync input Pin of sensor. Can be used with interrupt-capable digital pin on microcontroller to read data once it is ready, resulting in minimized timing jitter. |
 
 This board is designed for 3.3V power only, and all IO pins are not 5V-tolerant.
 
@@ -44,8 +43,6 @@ These codes are defined as pre-processor macros for users to check function outp
 * `SCH16T_ERR_INVALID_PARAM`
 * `SCH16T_ERR_SENSOR_INIT`
 * `SCH16T_ERR_OTHER`
-
-
 
 ### Structs
 Additionally, the library uses structs to organize groups of data to be passed into or modified by functions using pointers, each listed below:
@@ -101,16 +98,12 @@ Additionally, the library uses structs to organize groups of data to be passed i
     * `uint16_t Acc_Y`
     * `uint16_t Acc_Z`
 
-
-
 ### Enums
 
 * `SCH16T_axis`: Can be used to retrieve correct array index to read a specific axis
     * `AXIS_X`
     * `AXIS_Y`
     * `AXIS_Z`
-
-
 
 ### Constructors
 
@@ -150,7 +143,8 @@ Note2: Gyroscope sensitivity values accepted for K01 and K10 sensors are differe
 
 #### `void getData(SCH16T_raw_data *data)`
 
-Reads interpolated raw data readings (Rate1_raw and Acc1_raw) and writes them into a SCH16T_raw_data object. Also reads temperature raw data reading (Temp_raw).
+Reads interpolated raw data readings (Rate1_raw and Acc1_raw) and writes them into a SCH16T_raw_data object.
+Also reads temperature raw data reading (Temp_raw).
 
 * `data`: Pointer to SCH16T_raw_data object to be written to
 
@@ -159,7 +153,8 @@ Reads interpolated raw data readings (Rate1_raw and Acc1_raw) and writes them in
 
 #### `void getDataDecimated(SCH16T_raw_data *data)`
 
-Reads decimated raw data readings (Rate2_raw and Acc2_raw) and writes them into a SCH16T_raw_data object. Also reads temperature raw data reading (Temp_raw).
+Reads decimated raw data readings (Rate2_raw and Acc2_raw) and writes them into a SCH16T_raw_data object.
+Also reads temperature raw data reading (Temp_raw).
 
 * `data`: Pointer to SCH16T_raw_data object to be written to
 
@@ -167,7 +162,8 @@ Reads decimated raw data readings (Rate2_raw and Acc2_raw) and writes them into 
 
 #### `void getDataAux(SCH16T_raw_data *data)`
 
-Reads auxilliary accel raw data readings (Acc3_raw) and writes it into a SCH16T_raw_data object. Also reads temperature raw data reading (Temp_raw).
+Reads auxilliary accel raw data readings (Acc3_raw) and writes it into a SCH16T_raw_data object.
+Also reads temperature raw data reading (Temp_raw).
 
 * `data`: Pointer to SCH16T_raw_data object to be written to
 
@@ -175,7 +171,8 @@ Reads auxilliary accel raw data readings (Acc3_raw) and writes it into a SCH16T_
 
 #### `void convertData(SCH16T_raw_data *data_in, SCH16T_result *data_out)`
 
-Converts interpolated raw data readings (Rate1_raw and Acc1_raw) from SCH16T_raw_data object to real-world units (Rate1 and Acc1) in SCH16T_result object. Also converts temperature reading (Temp_raw) to real-world units (Temp).
+Converts interpolated raw data readings (Rate1_raw and Acc1_raw) from SCH16T_raw_data object to real-world units (Rate1 and Acc1) in SCH16T_result object.
+Also converts temperature reading (Temp_raw) to real-world units (Temp).
 
 * `* data_in`: Pointer to SCH16T_raw_data object to be read from
 * `* data_out`: Pointer to SCH16T_result object to be written to
@@ -184,7 +181,8 @@ Converts interpolated raw data readings (Rate1_raw and Acc1_raw) from SCH16T_raw
 
 #### `void convertDataDecimated(SCH16T_raw_data *data_in, SCH16T_result *data_out)`
 
-Converts decimated raw data readings (Rate2_raw and Acc2_raw) from SCH16T_raw_data object to real-world units (Rate2 and Acc2) in SCH16T_result object. Also converts temperature reading (Temp_raw) to real-world units (Temp).
+Converts decimated raw data readings (Rate2_raw and Acc2_raw) from SCH16T_raw_data object to real-world units (Rate2 and Acc2) in SCH16T_result object.
+Also converts temperature reading (Temp_raw) to real-world units (Temp).
 
 * `* data_in`: Pointer to SCH16T_raw_data object to be read from
 * `* data_out`: Pointer to SCH16T_result object to be written to
@@ -193,7 +191,8 @@ Converts decimated raw data readings (Rate2_raw and Acc2_raw) from SCH16T_raw_da
 
 #### `void convertDataAux(SCH16T_raw_data *data_in, SCH16T_result *data_out)`
 
-Converts auxilliary accel raw data readings (Acc3_raw) from SCH16T_raw_data object to real-world units (Acc3) in SCH16T_result object. Also converts temperature reading (Temp_raw) to real-world units (Temp).
+Converts auxilliary accel raw data readings (Acc3_raw) from SCH16T_raw_data object to real-world units (Acc3) in SCH16T_result object.
+Also converts temperature reading (Temp_raw) to real-world units (Temp).
 
 * `* data_in`: Pointer to SCH16T_raw_data object to be read from
 * `* data_out`: Pointer to SCH16T_result object to be written to
@@ -203,9 +202,8 @@ Converts auxilliary accel raw data readings (Acc3_raw) from SCH16T_raw_data obje
 #### `int setFilters(uint32_t Freq_Rate12, uint32_t Freq_Acc12, uint32_t Freq_Acc3)`
 
 Sets cutoff frequencies for low pass filters on the data output channels.
-
-* Valid values for `Rate` (Hz): 0, 13, 30, 68, 235, 280, 370
-* Valid values for `Acc` (Hz): 0, 13, 30, 68, 210, 240, 290
+Valid values for `Rate` (Hz): 0, 13, 30, 68, 235, 280, 370
+Valid values for `Acc` (Hz): 0, 13, 30, 68, 210, 240, 290
 
 * `Freq_Rate12`: Cutoff frequencies for Gyro Output Channels 1 and 2
 * `Freq_Acc12`: Cutoff frequencies for Accel Output Channels 1 and 2
@@ -217,10 +215,9 @@ Sets cutoff frequencies for low pass filters on the data output channels.
 #### `int setRateSensDec(uint16_t Sens_Rate1, uint16_t Sens_Rate2, uint16_t Dec_Rate2)`
 
 Sets sensitivity and decimation settings for Accel channels.
-
-* Valid sensitivity values for `Rate` (K01 only, LSB/dps): 100, 200, 400
-* Valid sensitivity values for `Rate` (K10 only, LSB/dps): 1600, 3200, 6400
-* Valid decimation ratio values: 2, 4, 8, 16, 32
+Valid sensitivity values for `Rate` (K01 only, LSB/dps): 100, 200, 400
+Valid sensitivity values for `Rate` (K10 only, LSB/dps): 1600, 3200, 6400
+Valid decimation ratio values: 2, 4, 8, 16, 32
 
 * `Sens_Rate1`: Sensitivity for Gyro Channel 1
 * `Sens_Rate2`: Sensitivity for Gyro Channel 2
@@ -243,9 +240,8 @@ Gets sensitivity and decimation settings for Accel channels and write to variabl
 #### `int setAccSensDec(uint16_t Sens_Acc1, uint16_t Sens_Acc2, uint16_t Sens_Acc3, uint16_t Dec_Acc2)`
 
 Sets sensitivity and decimation settings for Accel channels.
-
-* Valid sensitivity values for `Accel` (LSB/(m/s^2)): 3200, 6400, 12800, 25600
-* Valid decimation ratio values: 2, 4, 8, 16, 32
+Valid sensitivity values for `Accel` (LSB/(m/s^2)): 3200, 6400, 12800, 25600
+Valid decimation ratio values: 2, 4, 8, 16, 32
 
 * `Sens_Acc1`: Sensitivity for Accel Channel 1
 * `Sens_Acc2`: Sensitivity for Accel Channel 2
