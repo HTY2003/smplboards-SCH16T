@@ -108,7 +108,7 @@ Additionally, the library uses structs to organize groups of data to be passed i
 
 ### Constructors
 
-There is a constructor for each of the SCH16T models (K01 and K10). The input parameters for the constructors are identical, but make sure to use the correct constructor for your sensor:
+There is a constructor for each of the SCH16T models (K01 and K10). The input parameters for the constructors are identical, but  use the correct constructor for your sensor:
 
 #### `SCH16T_K01(SPIClass& spi, int cs_pin, int reset_pin = -1, int ta9_8 = 0)`
 #### `SCH16T_K10(SPIClass& spi, int cs_pin, int reset_pin = -1, int ta9_8 = 0)`
@@ -120,7 +120,8 @@ There is a constructor for each of the SCH16T models (K01 and K10). The input pa
 
 ### Functions
 
-The `SCH16T_K10` and `SCH16T_K01` classes are mostly identical, except for the gyroscope sensitivity values (more explained below):
+The `SCH16T_K10` and `SCH16T_K01` classes are mostly identical, except that the gyroscope sensitivity values accepted are different:
+
 
 #### `int begin(SCH16T_filter sFilter, SCH16T_sensitivity sSensitivity, SCH16T_decimation sDecimation, bool enableDRY = false)`
 
@@ -134,11 +135,16 @@ Initializes sensor with given settings. Call this function before all others.
 
 Note: When DRY output is enabled, the interrupt is only cleared when the decimated output channels are read. This can be done with `getDataDecimated()`.
 
+Note2: Gyroscope sensitivity values accepted for K01 and K10 sensors are different. Look at the description for the `SCH16T_sensitivity` struct or `setRateSensDec()` for the accepted values.
+
+
 #### `void getData(SCH16T_raw_data *data)`
 
 Reads interpolated raw data readings (Rate1_raw and Acc1_raw) and writes them into a SCH16T_raw_data object. Also reads temperature raw data reading (Temp_raw).
 
 * `data`: Pointer to SCH16T_raw_data object to be written to
+
+
 
 #### `void getDataDecimated(SCH16T_raw_data *data)`
 
@@ -146,11 +152,13 @@ Reads decimated raw data readings (Rate2_raw and Acc2_raw) and writes them into 
 
 * `data`: Pointer to SCH16T_raw_data object to be written to
 
+
 #### `void getDataAux(SCH16T_raw_data *data)`
 
 Reads auxilliary accel raw data readings (Acc3_raw) and writes it into a SCH16T_raw_data object. Also reads temperature raw data reading (Temp_raw).
 
 * `data`: Pointer to SCH16T_raw_data object to be written to
+
 
 #### `void convertData(SCH16T_raw_data *data_in, SCH16T_result *data_out)`
 
@@ -159,6 +167,7 @@ Converts interpolated raw data readings (Rate1_raw and Acc1_raw) from SCH16T_raw
 * `* data_in`: Pointer to SCH16T_raw_data object to be read from
 * `* data_out`: Pointer to SCH16T_result object to be written to
 
+
 #### `void convertDataDecimated(SCH16T_raw_data *data_in, SCH16T_result *data_out)`
 
 Converts decimated raw data readings (Rate2_raw and Acc2_raw) from SCH16T_raw_data object to real-world units (Rate2 and Acc2) in SCH16T_result object. Also converts temperature reading (Temp_raw) to real-world units (Temp).
@@ -166,12 +175,14 @@ Converts decimated raw data readings (Rate2_raw and Acc2_raw) from SCH16T_raw_da
 * `* data_in`: Pointer to SCH16T_raw_data object to be read from
 * `* data_out`: Pointer to SCH16T_result object to be written to
 
+
 #### `void convertDataAux(SCH16T_raw_data *data_in, SCH16T_result *data_out)`
 
 Converts auxilliary accel raw data readings (Acc3_raw) from SCH16T_raw_data object to real-world units (Acc3) in SCH16T_result object. Also converts temperature reading (Temp_raw) to real-world units (Temp).
 
 * `* data_in`: Pointer to SCH16T_raw_data object to be read from
 * `* data_out`: Pointer to SCH16T_result object to be written to
+
 
 #### `int setFilters(uint32_t Freq_Rate12, uint32_t Freq_Acc12, uint32_t Freq_Acc3)`
 
@@ -184,6 +195,7 @@ Sets cutoff frequencies for low pass filters on the data output channels.
 * `Freq_Acc12`: Cutoff frequencies for Accel Output Channels 1 and 2
 * `Freq_Acc3`: Cutoff frequencies for Accel Output Channel 3
 * Returns: Error code representing success of operation
+
 
 #### `int setRateSensDec(uint16_t Sens_Rate1, uint16_t Sens_Rate2, uint16_t Dec_Rate2)`
 
@@ -198,6 +210,7 @@ Sets sensitivity and decimation settings for Accel channels.
 * `Dec_Rate2`: Decimation for Gyro Channel 2
 * Returns: Error code representing success of operation
 
+
 #### `int getRateSensDec(uint16_t *Sens_Rate1, uint16_t *Sens_Rate2, uint16_t *Dec_Rate2)`
 
 Gets sensitivity and decimation settings for Accel channels and write to variables.
@@ -206,6 +219,7 @@ Gets sensitivity and decimation settings for Accel channels and write to variabl
 * `* Sens_Rate2`: Variable to write sensitivity of Gyro Channel 2 to
 * `* Dec_Rate2`: Variable to write decimation of Gyro Channel 2 to
 * Returns: Error code representing success of operation
+
 
 #### `int setAccSensDec(uint16_t Sens_Acc1, uint16_t Sens_Acc2, uint16_t Sens_Acc3, uint16_t Dec_Acc2)`
 
@@ -219,6 +233,7 @@ Sets sensitivity and decimation settings for Accel channels.
 * `Dec_Acc2`: Sensitivity for Accel Channel 2
 * Returns: Error code representing success of operation
 
+
 #### `int getAccSensDec(uint16_t *Sens_Acc1, uint16_t *Sens_Acc2, uint16_t *Sens_Acc3, uint16_t *Dec_Acc2)`
 
 Gets sensitivity and decimation settings for Accel channels and write to variables.
@@ -228,6 +243,7 @@ Gets sensitivity and decimation settings for Accel channels and write to variabl
 * `* Dec_Acc2`: Variable to write decimation of Accel Channel 2 to
 * Returns: Error code representing success of operation
 
+
 #### `int setDRY(int8_t polarity, bool enable)`
 
 Enables/disable DRY pin output and sets output polarity.
@@ -235,6 +251,7 @@ Enables/disable DRY pin output and sets output polarity.
 * `polarity`: Sets DRY output polarity. 0 = high active (default), 1 = low active. -1 = don't care
 * `enable`: Sets whether DRY output should be enabled
 * Returns: Error code representing success of operation
+
 
 #### `int enableMeas(bool enableSensor, bool setEOI)`
 
@@ -244,13 +261,16 @@ Activates/deactivates measurement mode and sets the EOI (End Of Initialization) 
 * `setEOI`: Sets EOI-bit. Locks all R/W registers, except soft reset. Can only be set when no errors in common status.
 * Returns: Error code representing success of operation
 
+
 #### `void reset()`
 
 Performs hard reset of sensor by pulling EXTRESN pin LOW, then HIGH (only if the pin is connected and pin number is passed into constructor).
 
+
 #### `void sendSPIreset()`
 
 Sends soft reset command over SPI.
+
 
 #### `int getStatus(SCH16T_status *Status)`
 
@@ -259,12 +279,14 @@ Reads all status register values and writes them into SCH16T_status object.
 * `* Status`: Pointer to SCH16T_status object to be written to
 * Returns: Error code representing success of operation
 
+
 #### `bool verifyStatus(SCH16T_status *Status)`
 
 Checks all status register values in SCH16T_status object and returns `true` if they are all valid, `false` otherwise.
 
 * `* Status`: Pointer to SCH16T_status object to be read from
 * Returns: `true` if status register values are all valid, `false` otherwise.
+
 
 #### `char *getSnbr()`
 
