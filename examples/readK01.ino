@@ -11,7 +11,7 @@
 #define DECIMATION_RATE     32          // DEC5, Output sample rate decimation.
 #define DECIMATION_ACC      32
 
-#define SPI_OBJECT          SPI
+#define SPI_OBJECT          SPI         // Some platforms have additional SPI intefaces under different names (e.g. SPI1)
 #define CS_PIN              10
 #define RESET_PIN           -1          //leave as -1 if not used
 
