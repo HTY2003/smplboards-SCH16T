@@ -1,6 +1,6 @@
 # smplboards SCH16T
 
-Arduino library for Murata SCH16T-K01 and SCH16T-K10 6 DoF IMU sensors, adapted from Murata source code
+Arduino library for Murata SCH16T-K01 and SCH16T-K10 6 DoF IMU sensors, adapted from Murata source code.
 
 ## Installation
 
@@ -16,14 +16,14 @@ In the future, I will add this library to the Arduino Library Manager for easier
 
 | Pin | Description |
 |---|---|
-| SPI RX | SPI Receive Pin of sensor. Connect to SPI TX pin on microcontroller |
-| CS | SPI Chip Select Pin of sensor. Connect to any digital pin on microcontroller |
-| SCK | SPI Clock Pin of sensor. Connect to SCK pin on microcontroller |
-| SPI TX | SPI Transmit Pin of sensor. Connect to SPI RX pin on microcontroller |
-| EXTRESN | Reset pin, pulled HIGH with a 10K resistor to enable the sensor by default. Connect to button/microcontroller pin if needed. |
-| 3V3 (+) | Power pin. Connect to 3V3 power source |
-| GND (-) | Ground pin. Connect to GND pin of microcontroller |
-| DRY_SYNC | Data Ready output/Sync input Pin of sensor. Can be used with interrupt-capable digital pin on microcontroller to read data once it is ready, resulting in minimized timing jitter. |
+| SPI RX | SPI Receive Pin. Connect to SPI TX pin on microcontroller |
+| CS | SPI Chip Select Pin. Connect to any digital pin on microcontroller |
+| SCK | SPI Clock Pin. Connect to SCK pin on microcontroller |
+| SPI TX | SPI Transmit Pin. Connect to SPI RX pin on microcontroller |
+| EXTRESN | Reset Pin, pulled HIGH with a 10K resistor to enable the sensor by default. Connect to button/microcontroller pin if needed |
+| 3V3 (+) | Power Pin. Connect to 3V3 power source |
+| GND (-) | Ground Pin. Connect to GND pin of microcontroller |
+| DRY_SYNC | Data Ready output/Sync input Pin. Can be used with interrupt-capable digital pin on microcontroller to read data once it is ready, resulting in minimized timing jitter |
 
 This board is designed for 3.3V power only, and all IO pins are not 5V-tolerant.
 
@@ -122,8 +122,6 @@ There is a constructor for each of the SCH16T models (K01 and K10). The input pa
 ### Functions
 
 The `SCH16T_K10` and `SCH16T_K01` classes are mostly identical, except that the gyroscope sensitivity values accepted are different:
-
-
 
 #### `int begin(SCH16T_filter sFilter, SCH16T_sensitivity sSensitivity, SCH16T_decimation sDecimation, bool enableDRY = false)`
 
