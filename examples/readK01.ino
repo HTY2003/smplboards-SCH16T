@@ -1,15 +1,15 @@
 #include "SCH16T.h"
 
-#define FILTER_RATE         280.0f      // Hz, LPF1 Nominal Cut-off Frequency (-3dB).
-#define FILTER_ACC12        240.0f
-#define FILTER_ACC3         240.0f
+#define FILTER_RATE         68.0f      // Hz, LPF0 Nominal Cut-off Frequency (-3dB).
+#define FILTER_ACC12        68.0f
+#define FILTER_ACC3         68.0f
 #define SENSITIVITY_RATE1   3200.0f     // LSB / dps, DYN1 Nominal Sensitivity for 20 bit data.
 #define SENSITIVITY_RATE2   3200.0f
 #define SENSITIVITY_ACC1    3200.0f     // LSB / m/s2, DYN1 Nominal Sensitivity for 20 bit data.
 #define SENSITIVITY_ACC2    3200.0f
 #define SENSITIVITY_ACC3    3200.0f     // LSB / m/s2, DYN1 Nominal Sensitivity for 20 bit data.
-#define DECIMATION_RATE     32          // DEC5, Output sample rate decimation.
-#define DECIMATION_ACC      32
+#define DECIMATION_RATE     4          // DEC2, Output sample rate decimation. Nominal output rate of 5.9kHz.
+#define DECIMATION_ACC      4
 
 #define SPI_OBJECT          SPI         // Some platforms have additional SPI intefaces under different names (e.g. SPI1)
 #define CS_PIN              10
