@@ -79,8 +79,8 @@ Additionally, the library uses structs to organize groups of data to be passed i
   * `uint16_t Acc1`
   * `uint16_t Acc2`
   * `uint16_t Acc3`
-  * Valid values for `Rate` (K01 only, LSB/dps): 100, 200, 400
-  * Valid values for `Rate` (K10 only, LSB/dps): 1600, 3200, 6400
+  * Valid values for `Rate` (K01 only, LSB/dps): 1600, 3200, 6400
+  * Valid values for `Rate` (K10 only, LSB/dps): 100, 200, 400
   * Valid values for `Accel` (LSB/(m/s^2)): 3200, 6400, 12800, 25600
 
 * `SCH16T_decimation`: Stores decimation settings for decimated-output gyro and accelerometer channels
@@ -197,8 +197,8 @@ Valid values for `Acc` (Hz): 0, 13, 30, 68, 210, 240, 290
 #### `int setRateSensDec(uint16_t Sens_Rate1, uint16_t Sens_Rate2, uint16_t Dec_Rate2)`
 
 Sets sensitivity and decimation settings for Accel channels.
-Valid sensitivity values for `Rate` (K01 only, LSB/dps): 100, 200, 400
-Valid sensitivity values for `Rate` (K10 only, LSB/dps): 1600, 3200, 6400
+Valid sensitivity values for `Rate` (K01 only, LSB/dps): 1600, 3200, 6400
+Valid sensitivity values for `Rate` (K10 only, LSB/dps): 100, 200, 400
 Valid decimation ratio values: 2, 4, 8, 16, 32
 
 * `Sens_Rate1`: Sensitivity for Gyro Channel 1
