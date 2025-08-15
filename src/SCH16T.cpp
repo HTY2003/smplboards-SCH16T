@@ -1151,6 +1151,8 @@ int SCH16T::begin(SCH16T_filter sFilter, SCH16T_sensitivity sSensitivity, SCH16T
     // Reset and Power Up" in the data sheet.
 
     reset(); // Reset sensor
+    delay(10);
+    sendSPIreset();
 
     for (startup_attempt = 0; startup_attempt < 2; startup_attempt++) {
                                     
