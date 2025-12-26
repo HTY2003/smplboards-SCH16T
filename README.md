@@ -10,8 +10,6 @@ Arduino library for Murata SCH16T-K01 and SCH16T-K10 6 DoF IMU sensors, adapted 
 
 3. When installed, you can include the library header by selecting it in `Sketch` > `Include Library`, and view example sketches in `File` > `Examples`.
 
-In the future, I will add this library to the Arduino Library Manager for easier installation.
-
 ## Wiring
 
 | Pin | Description |
@@ -27,7 +25,7 @@ In the future, I will add this library to the Arduino Library Manager for easier
 
 This board is designed for 3.3V power only, and all IO pins are not 5V-tolerant.
 
-On the back of the board, there are solder pads to alter the values of TA9 and TA8 (0 by default). Solder the middle pad to the `1` pad to change its value to 1.
+On the top of the board, there are solder jumper pads to alter the values of TA9 and TA8 (0 by default). Solder the jumper pads to to change their value to 1.
 
 Changing these values allows for multiple of the sensor on the same SPI bus without requiring additional Chip Select pins - as long as they all have different TA values.
 
