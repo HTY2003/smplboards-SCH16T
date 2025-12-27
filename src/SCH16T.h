@@ -116,9 +116,9 @@ typedef struct {
 // Measurement axes
 typedef enum
 {
-    AXIS_X,
-    AXIS_Y,
-    AXIS_Z
+    SCH16T_AXIS_X,
+    SCH16T_AXIS_Y,
+    SCH16T_AXIS_Z
 } SCH16T_axis;
 
 class SCH16T

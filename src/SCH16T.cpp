@@ -1230,12 +1230,12 @@ void SCH16T::getData(SCH16T_raw_data *data)
     data->frame_error = check48bitFrameError(miso_words, (sizeof(miso_words) / sizeof(uint64_t)));
     
     // Parse MISO data to structure
-    data->Rate1_raw[SCH16T_axis::AXIS_X] = SPI48_DATA_INT32(rate_x_raw);
-    data->Rate1_raw[SCH16T_axis::AXIS_Y] = SPI48_DATA_INT32(rate_y_raw);
-    data->Rate1_raw[SCH16T_axis::AXIS_Z] = SPI48_DATA_INT32(rate_z_raw);
-    data->Acc1_raw[SCH16T_axis::AXIS_X]  = SPI48_DATA_INT32(acc_x_raw);
-    data->Acc1_raw[SCH16T_axis::AXIS_Y]  = SPI48_DATA_INT32(acc_y_raw);
-    data->Acc1_raw[SCH16T_axis::AXIS_Z]  = SPI48_DATA_INT32(acc_z_raw);
+    data->Rate1_raw[SCH16T_AXIS_X] = SPI48_DATA_INT32(rate_x_raw);
+    data->Rate1_raw[SCH16T_AXIS_Y] = SPI48_DATA_INT32(rate_y_raw);
+    data->Rate1_raw[SCH16T_AXIS_Z] = SPI48_DATA_INT32(rate_z_raw);
+    data->Acc1_raw[SCH16T_AXIS_X]  = SPI48_DATA_INT32(acc_x_raw);
+    data->Acc1_raw[SCH16T_AXIS_Y]  = SPI48_DATA_INT32(acc_y_raw);
+    data->Acc1_raw[SCH16T_AXIS_Z]  = SPI48_DATA_INT32(acc_z_raw);
 
     // Temperature data is always 16 bits wide. Drop 4 LSBs as they are not used.
     data->Temp_raw = SPI48_DATA_INT32(temp_raw) >> 4;
@@ -1264,12 +1264,12 @@ void SCH16T::getDataDecimated(SCH16T_raw_data *data)
     data->frame_error = check48bitFrameError(miso_words, (sizeof(miso_words) / sizeof(uint64_t)));
     
     // Parse MISO data to structure
-    data->Rate2_raw[SCH16T_axis::AXIS_X] = SPI48_DATA_INT32(rate_x_raw);
-    data->Rate2_raw[SCH16T_axis::AXIS_Y] = SPI48_DATA_INT32(rate_y_raw);
-    data->Rate2_raw[SCH16T_axis::AXIS_Z] = SPI48_DATA_INT32(rate_z_raw);
-    data->Acc2_raw[SCH16T_axis::AXIS_X]  = SPI48_DATA_INT32(acc_x_raw);
-    data->Acc2_raw[SCH16T_axis::AXIS_Y]  = SPI48_DATA_INT32(acc_y_raw);
-    data->Acc2_raw[SCH16T_axis::AXIS_Z]  = SPI48_DATA_INT32(acc_z_raw);
+    data->Rate2_raw[SCH16T_AXIS_X] = SPI48_DATA_INT32(rate_x_raw);
+    data->Rate2_raw[SCH16T_AXIS_Y] = SPI48_DATA_INT32(rate_y_raw);
+    data->Rate2_raw[SCH16T_AXIS_Z] = SPI48_DATA_INT32(rate_z_raw);
+    data->Acc2_raw[SCH16T_AXIS_X]  = SPI48_DATA_INT32(acc_x_raw);
+    data->Acc2_raw[SCH16T_AXIS_Y]  = SPI48_DATA_INT32(acc_y_raw);
+    data->Acc2_raw[SCH16T_AXIS_Z]  = SPI48_DATA_INT32(acc_z_raw);
 
     // Temperature data is always 16 bits wide. Drop 4 LSBs as they are not used.
     data->Temp_raw = SPI48_DATA_INT32(temp_raw) >> 4;
@@ -1295,9 +1295,9 @@ void SCH16T::getDataAux(SCH16T_raw_data *data)
     data->frame_error = check48bitFrameError(miso_words, (sizeof(miso_words) / sizeof(uint64_t)));
     
     // Parse MISO data to structure
-    data->Acc3_raw[SCH16T_axis::AXIS_X]  = SPI48_DATA_INT32(acc_x_raw);
-    data->Acc3_raw[SCH16T_axis::AXIS_Y]  = SPI48_DATA_INT32(acc_y_raw);
-    data->Acc3_raw[SCH16T_axis::AXIS_Z]  = SPI48_DATA_INT32(acc_z_raw);
+    data->Acc3_raw[SCH16T_AXIS_X]  = SPI48_DATA_INT32(acc_x_raw);
+    data->Acc3_raw[SCH16T_AXIS_Y]  = SPI48_DATA_INT32(acc_y_raw);
+    data->Acc3_raw[SCH16T_AXIS_Z]  = SPI48_DATA_INT32(acc_z_raw);
 
     // Temperature data is always 16 bits wide. Drop 4 LSBs as they are not used.
     data->Temp_raw = SPI48_DATA_INT32(temp_raw) >> 4;
@@ -1315,12 +1315,12 @@ void SCH16T::getDataAux(SCH16T_raw_data *data)
 void SCH16T::convertData(SCH16T_raw_data *data_in, SCH16T_result *data_out)
 {
     // Convert from raw counts to sensitivity and calculate averages here for faster execution
-    data_out->Rate1[SCH16T_axis::AXIS_X] = (float)data_in->Rate1_raw[SCH16T_axis::AXIS_X] / (float) _sens_rate1;
-    data_out->Rate1[SCH16T_axis::AXIS_Y] = (float)data_in->Rate1_raw[SCH16T_axis::AXIS_Y] / (float) _sens_rate1;
-    data_out->Rate1[SCH16T_axis::AXIS_Z] = (float)data_in->Rate1_raw[SCH16T_axis::AXIS_Z] / (float) _sens_rate1;
-    data_out->Acc1[SCH16T_axis::AXIS_X]  = (float)data_in->Acc1_raw[SCH16T_axis::AXIS_X] / (float) _sens_acc1;
-    data_out->Acc1[SCH16T_axis::AXIS_Y]  = (float)data_in->Acc1_raw[SCH16T_axis::AXIS_Y] / (float) _sens_acc1;
-    data_out->Acc1[SCH16T_axis::AXIS_Z]  = (float)data_in->Acc1_raw[SCH16T_axis::AXIS_Z] / (float) _sens_acc1;
+    data_out->Rate1[SCH16T_AXIS_X] = (float)data_in->Rate1_raw[SCH16T_AXIS_X] / (float) _sens_rate1;
+    data_out->Rate1[SCH16T_AXIS_Y] = (float)data_in->Rate1_raw[SCH16T_AXIS_Y] / (float) _sens_rate1;
+    data_out->Rate1[SCH16T_AXIS_Z] = (float)data_in->Rate1_raw[SCH16T_AXIS_Z] / (float) _sens_rate1;
+    data_out->Acc1[SCH16T_AXIS_X]  = (float)data_in->Acc1_raw[SCH16T_AXIS_X] / (float) _sens_acc1;
+    data_out->Acc1[SCH16T_AXIS_Y]  = (float)data_in->Acc1_raw[SCH16T_AXIS_Y] / (float) _sens_acc1;
+    data_out->Acc1[SCH16T_AXIS_Z]  = (float)data_in->Acc1_raw[SCH16T_AXIS_Z] / (float) _sens_acc1;
 
     // Convert temperature and calculate average
     data_out->Temp = (float)data_in->Temp_raw / 100;
@@ -1338,12 +1338,12 @@ void SCH16T::convertData(SCH16T_raw_data *data_in, SCH16T_result *data_out)
 void SCH16T::convertDataDecimated(SCH16T_raw_data *data_in, SCH16T_result *data_out)
 {
     // Convert from raw counts to sensitivity and calculate averages here for faster execution
-    data_out->Rate2[SCH16T_axis::AXIS_X] = (float)data_in->Rate2_raw[SCH16T_axis::AXIS_X] / (float) _sens_rate2;
-    data_out->Rate2[SCH16T_axis::AXIS_Y] = (float)data_in->Rate2_raw[SCH16T_axis::AXIS_Y] / (float) _sens_rate2;
-    data_out->Rate2[SCH16T_axis::AXIS_Z] = (float)data_in->Rate2_raw[SCH16T_axis::AXIS_Z] / (float) _sens_rate2;
-    data_out->Acc2[SCH16T_axis::AXIS_X]  = (float)data_in->Acc2_raw[SCH16T_axis::AXIS_X] / (float) _sens_acc2;
-    data_out->Acc2[SCH16T_axis::AXIS_Y]  = (float)data_in->Acc2_raw[SCH16T_axis::AXIS_Y] / (float) _sens_acc2;
-    data_out->Acc2[SCH16T_axis::AXIS_Z]  = (float)data_in->Acc2_raw[SCH16T_axis::AXIS_Z] / (float) _sens_acc2;
+    data_out->Rate2[SCH16T_AXIS_X] = (float)data_in->Rate2_raw[SCH16T_AXIS_X] / (float) _sens_rate2;
+    data_out->Rate2[SCH16T_AXIS_Y] = (float)data_in->Rate2_raw[SCH16T_AXIS_Y] / (float) _sens_rate2;
+    data_out->Rate2[SCH16T_AXIS_Z] = (float)data_in->Rate2_raw[SCH16T_AXIS_Z] / (float) _sens_rate2;
+    data_out->Acc2[SCH16T_AXIS_X]  = (float)data_in->Acc2_raw[SCH16T_AXIS_X] / (float) _sens_acc2;
+    data_out->Acc2[SCH16T_AXIS_Y]  = (float)data_in->Acc2_raw[SCH16T_AXIS_Y] / (float) _sens_acc2;
+    data_out->Acc2[SCH16T_AXIS_Z]  = (float)data_in->Acc2_raw[SCH16T_AXIS_Z] / (float) _sens_acc2;
 
     // Convert temperature and calculate average
     data_out->Temp = (float)data_in->Temp_raw / 100;
@@ -1361,9 +1361,9 @@ void SCH16T::convertDataDecimated(SCH16T_raw_data *data_in, SCH16T_result *data_
 void SCH16T::convertDataAux(SCH16T_raw_data *data_in, SCH16T_result *data_out)
 {
     // Convert from raw counts to sensitivity and calculate averages here for faster execution
-    data_out->Acc3[SCH16T_axis::AXIS_X]  = (float)data_in->Acc3_raw[SCH16T_axis::AXIS_X] / (float) _sens_acc3;
-    data_out->Acc3[SCH16T_axis::AXIS_Y]  = (float)data_in->Acc3_raw[SCH16T_axis::AXIS_Y] / (float) _sens_acc3;
-    data_out->Acc3[SCH16T_axis::AXIS_Z]  = (float)data_in->Acc3_raw[SCH16T_axis::AXIS_Z] / (float) _sens_acc3;
+    data_out->Acc3[SCH16T_AXIS_X]  = (float)data_in->Acc3_raw[SCH16T_AXIS_X] / (float) _sens_acc3;
+    data_out->Acc3[SCH16T_AXIS_Y]  = (float)data_in->Acc3_raw[SCH16T_AXIS_Y] / (float) _sens_acc3;
+    data_out->Acc3[SCH16T_AXIS_Z]  = (float)data_in->Acc3_raw[SCH16T_AXIS_Z] / (float) _sens_acc3;
 
     // Convert temperature and calculate average
     data_out->Temp = (float)data_in->Temp_raw / 100;

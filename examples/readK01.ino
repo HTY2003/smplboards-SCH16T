@@ -65,19 +65,19 @@ void loop() {
     imu.convertData(&raw, &result);
 
     Serial.print("Gyro X: ");
-    Serial.println(result.Rate1[SCH16T_axis::AXIS_X]);
+    Serial.println(result.Rate1[SCH16T_AXIS_X]);
     Serial.print("Gyro Y: ");
-    Serial.println(result.Rate1[SCH16T_axis::AXIS_Y]);
+    Serial.println(result.Rate1[SCH16T_AXIS_Y]);
     Serial.print("Gyro Z: ");
-    Serial.println(result.Rate1[SCH16T_axis::AXIS_Z]);
+    Serial.println(result.Rate1[SCH16T_AXIS_Z]);
     Serial.println();
 
     Serial.print("Accel X: ");
-    Serial.println(result.Acc1[SCH16T_axis::AXIS_X]);
+    Serial.println(result.Acc1[SCH16T_AXIS_X]);
     Serial.print("Accel Y: ");
-    Serial.println(result.Acc1[SCH16T_axis::AXIS_Y]);
+    Serial.println(result.Acc1[SCH16T_AXIS_Y]);
     Serial.print("Accel Z: ");
-    Serial.println(result.Acc1[SCH16T_axis::AXIS_Z]);
+    Serial.println(result.Acc1[SCH16T_AXIS_Z]);
     Serial.println();
 
     Serial.print("Temperature: ");

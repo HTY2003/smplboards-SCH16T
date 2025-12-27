@@ -101,9 +101,10 @@ Additionally, the library uses structs to organize groups of data to be passed i
 ### Enums
 
 * `SCH16T_axis`: Can be used to retrieve correct array index to read a specific axis
-  * `AXIS_X`
-  * `AXIS_Y`
-  * `AXIS_Z`
+  * `SCH16T_AXIS_X`
+  * `SCH16T_AXIS_Y`
+  * `SCH16T_AXIS_Z`
+  * Note: The `SCH16T_` prefix was not present in earlier versions, so it may break older code. It was added to avoid conflicts with similarly named enums.
 
 ### Constructors
 
